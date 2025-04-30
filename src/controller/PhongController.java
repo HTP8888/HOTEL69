@@ -141,76 +141,7 @@ public class PhongController {
     }
     
      
-    // Hủy phòng nếu đang ở trạng thái "Đã đặt"
-    public void huyDatPhong(int dat_phong_id) {
-        PreparedStatement stmtUpdateDatPhong = null;
-        PreparedStatement stmtUpdatePhong = null;
-        PreparedStatement stmtDeleteChiTiet = null;
-        PreparedStatement stmtSelectPhongIds = null;
-        ResultSet rs = null;
-    
-        try {
-            //conn.setAutoCommit(false); // Bắt đầu transaction
-    
-            // 1. Lấy danh sách phòng liên quan đến dat_phong_id
-            String selectPhongIdsSql = "SELECT phong_id FROM chi_tiet_dat_phong WHERE dat_phong_id = ?";
-            stmtSelectPhongIds = conn.prepareStatement(selectPhongIdsSql);
-            stmtSelectPhongIds.setInt(1, dat_phong_id);
-            rs = stmtSelectPhongIds.executeQuery();
-    
-            List<Integer> phongIds = new ArrayList<>(); //Danh sách ID phòng có mã cần hủy
-            while (rs.next()) {
-                phongIds.add(rs.getInt("phong_id"));
-            }
-    
-            // 2. Cập nhật trạng thái các phòng thành 'Trống'
-            if (!phongIds.isEmpty()) {
-                StringBuilder updatePhongSql = new StringBuilder("UPDATE phong SET trang_thai = 'Trống' WHERE id IN (");
-                for (int i = 0; i < phongIds.size(); i++) {
-                    updatePhongSql.append("?");
-                    if (i < phongIds.size() - 1) {
-                        updatePhongSql.append(", ");
-                    }
-                }
-                updatePhongSql.append(")");
-                
-                stmtUpdatePhong = conn.prepareStatement(updatePhongSql.toString());
-                for (int i = 0; i < phongIds.size(); i++) {
-                    stmtUpdatePhong.setInt(i + 1, phongIds.get(i));
-                }
-                stmtUpdatePhong.executeUpdate();
-            }
-    
-            // 3. Xóa chi tiết đặt phòng
-            String deleteChiTietSql = "DELETE FROM chi_tiet_dat_phong WHERE dat_phong_id = ?";
-            stmtDeleteChiTiet = conn.prepareStatement(deleteChiTietSql);
-            stmtDeleteChiTiet.setInt(1, dat_phong_id);
-            stmtDeleteChiTiet.executeUpdate();
-    
-            // 4. Cập nhật trạng thái đơn đặt phòng thành 'Đã hủy'
-            String updateDatPhongSql = "UPDATE dat_phong SET trang_thai = 'Đã hủy' WHERE id = ?";
-            stmtUpdateDatPhong = conn.prepareStatement(updateDatPhongSql);
-            stmtUpdateDatPhong.setInt(1, dat_phong_id);
-            stmtUpdateDatPhong.executeUpdate();
-    
-            conn.commit(); // Nếu mọi thứ OK thì commit transaction
-            System.out.println("Đã hủy đặt phòng thành công!");
-    
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                if (conn != null) conn.rollback(); // Nếu lỗi thì rollback
-            } catch (Exception rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) { }
-            try { if (stmtSelectPhongIds != null) stmtSelectPhongIds.close(); } catch (Exception e) { }
-            try { if (stmtUpdatePhong != null) stmtUpdatePhong.close(); } catch (Exception e) { }
-            try { if (stmtDeleteChiTiet != null) stmtDeleteChiTiet.close(); } catch (Exception e) { }
-            try { if (stmtUpdateDatPhong != null) stmtUpdateDatPhong.close(); } catch (Exception e) { }
-            try { if (conn != null) conn.setAutoCommit(true); conn.close(); } catch (Exception e) { }
-        }
-    }
+
+
     
 }

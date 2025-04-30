@@ -13,7 +13,7 @@ public class MainView {
     PhongController phongCtrl = new PhongController();
     NguoiDung nguoiDung = null;
     List<Phong> dsPhongChon;
-
+    DatPhongController bookingController = new DatPhongController();
     public void menu() {
         while (true) {
             System.out.println("\n1. Đăng ký\n2. Đăng nhập\n0. Thoát");
@@ -63,6 +63,7 @@ public class MainView {
             System.out.println("1. Tìm và xem chi tiết phòng");
             System.out.println("2. Cập nhật thông tin cá nhân");
             System.out.println("3. Đổi mật khẩu");
+            System.out.println("4. Xem phòng đã đặt");
             System.out.println("0. Đăng xuất");
             System.out.print("Chọn: ");
             int chon = scanner.nextInt(); scanner.nextLine();
@@ -72,7 +73,10 @@ public class MainView {
                 capNhatThongTinCaNhan();
             } else if (chon == 3) {
                 doiMatKhau();
-            } else if (chon == 0) {
+            }else if(chon ==4){
+                xemPhongDaDat(nguoiDung);
+            }
+            else if (chon == 0) {
                 System.out.println("Đã đăng xuất.");
                 nguoiDung = null;
                 break;
@@ -89,6 +93,7 @@ public class MainView {
             System.out.println("2. Quản lý người dùng");
             System.out.println("3. Cập nhật thông tin cá nhân");
             System.out.println("4. Đổi mật khẩu");
+            System.out.println("5. Thống kê doanh thu theo năm");
             System.out.println("0. Đăng xuất");
             System.out.print("Chọn: ");
             int chon = scanner.nextInt(); scanner.nextLine();
@@ -100,7 +105,14 @@ public class MainView {
                 capNhatThongTinCaNhan();
             } else if (chon == 4) {
                 doiMatKhau();
-            } else if (chon == 0) {
+            }else if(chon ==5){
+
+
+                thongKeDoanhThuTheoNam();
+            }
+            else if (chon == 0) {
+
+
                 System.out.println("Đã đăng xuất.");
                 nguoiDung = null;
                 break;
@@ -189,9 +201,9 @@ public class MainView {
                     System.out.println("Đặt tất cả các phòng đã chọn? (y/n)");
                     String tieptuc = scanner.nextLine();
                     if(tieptuc.equalsIgnoreCase("y")) {
-                        System.out.println("Nhập ngày nhận");
+                        System.out.println("Nhập ngày nhận (yy-mm-dd)");
                         String ngayNhan = scanner.nextLine();
-                        System.out.println("Nhập ngày trả");
+                        System.out.println("Nhập ngày trả (yy-mm-dd");
                         String ngayTra = scanner.nextLine();
                         phongCtrl.datNhieuPhong(nguoiDung.getId(), dsPhongChon,ngayNhan, ngayTra);
                         System.out.println("Đặt tất cả các phòng đã chọn thành công!");
@@ -319,4 +331,75 @@ public class MainView {
         System.out.println("\nNhấn 'enter' để quay lại menu.");
         scanner.nextLine();
     }
+    private void xemPhongDaDat(NguoiDung nguoiDung) {
+        List<Phong> danhSach = bookingController.layDanhSachPhongDaDat(nguoiDung.getId());
+        if (danhSach.isEmpty()) {
+            System.out.println("Bạn chưa đặt phòng nào.");
+        } else {
+            System.out.println("Danh sách phòng bạn đã đặt:");
+            for (Phong p : danhSach) {
+                System.out.println("ID: " + p.getId() + " - Tên phòng: " + p.getTenPhong() +
+                        " - Loại: " + p.getLoaiPhong() + " - Giá: " + p.getGia() +
+                        " - Trạng thái: " + p.getTrangThai());
+            }
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Bạn có muốn thanh toán phòng nào không? (y/n): ");
+            String chon = scanner.nextLine();
+
+            if (chon.equalsIgnoreCase("y")) {
+                System.out.print("Nhập ID phòng muốn thanh toán: ");
+                int idPhong = scanner.nextInt();
+                scanner.nextLine(); // clear buffer
+
+                System.out.println("Chọn phương thức thanh toán:");
+                System.out.println("1. Thanh toán qua thẻ");
+                System.out.println("2. Chuyển khoản MB Bank");
+                int luaChon = scanner.nextInt();
+                scanner.nextLine(); // clear buffer
+
+                if (luaChon == 1) {
+                    System.out.print("Nhập số thẻ: ");
+                    String soThe = scanner.nextLine();
+                    System.out.print("Nhập tên ngân hàng: ");
+                    String tenNganHang = scanner.nextLine();
+
+                    System.out.println("Xác nhận thanh toán...");
+                    System.out.println("Thanh toán bằng thẻ " + soThe + " (" + tenNganHang + ") thành công!");
+                    bookingController.xacNhanThanhToan(nguoiDung.getId(), idPhong, "the");
+
+                } else if (luaChon == 2) {
+                    System.out.println("Vui lòng chuyển khoản tới tài khoản MB Bank 123789.");
+                    System.out.println("Xác nhận đã chuyển khoản? (y/n): ");
+                    String xacNhan = scanner.nextLine();
+
+                    if (xacNhan.equalsIgnoreCase("y")) {
+                        System.out.println("Thanh toán chuyển khoản thành công!");
+                        bookingController.xacNhanThanhToan(nguoiDung.getId(), idPhong, "chuyen_khoan");
+                    } else {
+                        System.out.println("Hủy thanh toán.");
+                    }
+                } else {
+                    System.out.println("Lựa chọn không hợp lệ.");
+                }
+            }
+        }
+
+    }
+    void thongKeDoanhThuTheoNam() {
+        System.out.println("\n--- THỐNG KÊ DOANH THU ---");
+        System.out.print("Nhập năm cần thống kê (ví dụ 2025): ");
+        int nam = scanner.nextInt();
+        scanner.nextLine();
+
+        bookingController.tinhTongDoanhThuTheoNam(nam);
+
+
+
+        System.out.println("\nNhấn 'enter' để quay lại menu.");
+        scanner.nextLine();
+    }
+
+
+
 }
