@@ -201,7 +201,7 @@ public class UserView {
             }
 
             Scanner scanner = new Scanner(System.in);
-            System.out.print("Bạn có muốn thanh toán phòng nào không? (y/n): ");
+            System.out.print("Bạn có muốn thanh toán phòng này không? (y/n): ");
             String chon = scanner.nextLine();
 
             if (chon.equalsIgnoreCase("y")) {
