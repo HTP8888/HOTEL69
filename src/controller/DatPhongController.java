@@ -11,9 +11,8 @@ import java.util.List;
 
 public class   DatPhongController {
     private Connection conn;
-
     public DatPhongController() {
-        conn = Database.getConnection();
+        this.conn = Database.getConnection();
     }
 
     // Hàm lấy danh sách phòng đã đặt của 1 người dùng
@@ -46,7 +45,39 @@ public class   DatPhongController {
 
         return danhSachPhong;
     }
+    public String layDanhSachPhongThanhToan(int nguoiDungId) {
 
+        try {
+            String sql = "SELECT p.*, dp.trang_thai AS trang_thai_dat_phong,ct.dat_phong_id " +
+                    "FROM dat_phong dp " +
+                    "JOIN chi_tiet_dat_phong ct ON dp.id = ct.dat_phong_id " +
+                    "JOIN phong p ON ct.phong_id = p.id " +
+                    "WHERE dp.nguoi_dung_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, nguoiDungId);
+
+            ResultSet rs = stmt.executeQuery();
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                int id = rs.getInt("dat_phong_id");
+                String tenPhong = rs.getString("ten_phong");
+                String loaiPhong = rs.getString("loai_phong");
+                double gia = rs.getDouble("gia");
+                String trangThai = rs.getString("trang_thai_dat_phong"); // lấy trạng thái ĐƠN ĐẶT PHÒNG
+                String tienNghi = rs.getString("tien_nghi");
+                System.out.println("Đặt phòng id: " + id + "    |Tên phòng: " + tenPhong + "    |Loại phòng: " + loaiPhong + "    |Giá: " + gia + "   |Trạng thái: " + trangThai);
+            }
+            if(!found){
+                return "Không có phòng nào được đặt";
+            }
+
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lấy danh sách phòng đã đặt: " + e.getMessage());
+
+        }
+        return "";
+    }
 
     public void huyDatPhong(int dat_phong_id) {
         PreparedStatement stmtUpdateDatPhong = null;
@@ -54,12 +85,8 @@ public class   DatPhongController {
         PreparedStatement stmtDeleteChiTiet = null;
         PreparedStatement stmtSelectPhongIds = null;
         ResultSet rs = null;
-
-
-
-
         try {
-            //conn.setAutoCommit(false); // Bắt đầu transaction
+            conn.setAutoCommit(false); // Bắt đầu transaction
 
             // 1. Lấy danh sách phòng liên quan đến dat_phong_id
             String selectPhongIdsSql = "SELECT phong_id FROM chi_tiet_dat_phong WHERE dat_phong_id = ?";

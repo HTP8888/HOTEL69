@@ -28,7 +28,9 @@ public class Phong {
     public String getTrangThai() { return trangThai; }
     public String getMoTa() { return moTa; }  // Thêm phương thức getter cho MoTa
     public String getTienNghi() { return tienNghi; }  // Thêm phương thức getter cho Tiện nghi
-
+    public String toString(){
+        return String.format("id: %d |Tên Phòng: %s  |Loại phòng: %s  |Giá:  %f  |Tiện nghi:  %s  |Trạng thái:  %s",this.id,this.tenPhong,this.loaiPhong,this.gia,this.tienNghi,this.trangThai);
+    }
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
     }
