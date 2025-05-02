@@ -6,6 +6,7 @@ import controller.*;
 //import java.sql.Connection;
 import java.util.*;
 import model.*;
+import java.util.Map;
 
 public class MainView {
     Scanner scanner = new Scanner(System.in);
@@ -14,7 +15,9 @@ public class MainView {
     NguoiDung nguoiDung = null;
     List<Phong> dsPhongChon;
     DatPhongController bookingController = new DatPhongController();
+    Map<Integer, DatPhong> donDatPhongMap;
     public void menu() {
+
         while (true) {
             System.out.println("\n1. Đăng ký\n2. Đăng nhập\n0. Thoát");
             System.out.print("Chọn: ");
@@ -332,16 +335,22 @@ public class MainView {
         scanner.nextLine();
     }
     private void xemPhongDaDat(NguoiDung nguoiDung) {
-        List<Phong> danhSach = bookingController.layDanhSachPhongDaDat(nguoiDung.getId());
-        if (danhSach.isEmpty()) {
-            System.out.println("Bạn chưa đặt phòng nào.");
+        donDatPhongMap =  bookingController.layDanhSachDonDatPhong(nguoiDung.getId());
+        if (donDatPhongMap.isEmpty()) {
+            System.out.println("Bạn chưa có đơn đặt phòng nào.");
         } else {
-            System.out.println("Danh sách phòng bạn đã đặt:");
-            for (Phong p : danhSach) {
-                System.out.println("ID: " + p.getId() + " - Tên phòng: " + p.getTenPhong() +
-                        " - Loại: " + p.getLoaiPhong() + " - Giá: " + p.getGia() +
-                        " - Trạng thái: " + p.getTrangThai());
+            System.out.println("\n--- DANH SÁCH ĐƠN ĐẶT PHÒNG ---");
+            for (DatPhong dp : donDatPhongMap.values()) {
+                System.out.printf("Đơn #%d  —  Trạng thái: %s\n",
+                        dp.getId(), dp.getTrangThai());
+                for (Phong p : dp.getDanhSachPhong()) {
+                    System.out.printf("    • [%d] %s (Loại: %s, Giá: %.0f)\n",
+                            p.getId(), p.getTenPhong(),
+                            p.getLoaiPhong(), p.getGia());
+                }
+                System.out.println();
             }
+
 
             Scanner scanner = new Scanner(System.in);
             System.out.print("Bạn có muốn thanh toán phòng nào không? (y/n): ");

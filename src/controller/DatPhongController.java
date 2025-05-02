@@ -2,6 +2,10 @@ package controller;
 
 import model.Database;
 import model.Phong;
+import model.DatPhong;
+import java.util.Map;
+import java.util.HashMap;
+import java.sql.SQLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,11 +21,11 @@ public class   DatPhongController {
     }
 
     // Hàm lấy danh sách phòng đã đặt của 1 người dùng
-    public List<Phong> layDanhSachPhongDaDat(int nguoiDungId) {
-        List<Phong> danhSachPhong = new ArrayList<>();
+    public Map<Integer, DatPhong> layDanhSachDonDatPhong(int nguoiDungId) {
+        Map<Integer, DatPhong> donDatPhongMap = new HashMap<>();
 
         try {
-            String sql = "SELECT p.*, dp.trang_thai AS trang_thai_dat_phong,ct.dat_phong_id " +
+            String sql = "SELECT p.*, dp.trang_thai AS trang_thai_dat_phong, ct.dat_phong_id " +
                     "FROM dat_phong dp " +
                     "JOIN chi_tiet_dat_phong ct ON dp.id = ct.dat_phong_id " +
                     "JOIN phong p ON ct.phong_id = p.id " +
@@ -31,21 +35,33 @@ public class   DatPhongController {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                int id = rs.getInt("id");
+                int datPhongId = rs.getInt("dat_phong_id");
+                String trangThaiDatPhong = rs.getString("trang_thai_dat_phong");
+
+                int phongId = rs.getInt("id");
                 String tenPhong = rs.getString("ten_phong");
                 String loaiPhong = rs.getString("loai_phong");
                 double gia = rs.getDouble("gia");
-                String trangThai = rs.getString("trang_thai_dat_phong"); // lấy trạng thái ĐƠN ĐẶT PHÒNG
                 String tienNghi = rs.getString("tien_nghi");
 
-                danhSachPhong.add(new Phong(id, tenPhong, loaiPhong, gia, trangThai, tienNghi));
+                Phong phong = new Phong(phongId, tenPhong, loaiPhong, gia, trangThaiDatPhong, tienNghi);
+
+                // Nếu đơn chưa có trong map, tạo mới
+                if (!donDatPhongMap.containsKey(datPhongId)) {
+                    donDatPhongMap.put(datPhongId, new DatPhong(datPhongId, trangThaiDatPhong));
+                }
+
+                // Thêm phòng vào đơn
+                donDatPhongMap.get(datPhongId).themPhong(phong);
             }
-        } catch (Exception e) {
-            System.out.println("Lỗi khi lấy danh sách phòng đã đặt: " + e.getMessage());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        return danhSachPhong;
+        return donDatPhongMap;
     }
+
 
 
     public void huyDatPhong(int dat_phong_id) {
