@@ -180,6 +180,7 @@ public class UserView {
             scanner.nextLine();
             if(chon != 0) {
                 bookingController.huyDatPhong(chon);
+                dsPhongChon.clear();
             }
             else{
                 return;
