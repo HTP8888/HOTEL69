@@ -6,7 +6,9 @@ import model.DatPhong;
 import java.util.Map;
 import java.util.HashMap;
 import java.sql.SQLException;
-
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -94,6 +96,33 @@ public class   DatPhongController {
         return "";
     }
 
+    public Date layNgayNhan(int datPhongId) {
+        String sql = "SELECT ngay_nhan FROM dat_phong WHERE id = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, datPhongId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDate("ngay_nhan");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lấy ngày nhận phòng");
+        }
+        return null; // hoặc có thể trả về giá trị mặc định khác nếu cần
+    }
+
+    public boolean kiemTraCach1Tuan(int datPhongId) {
+        Date sqlNgayNhan = layNgayNhan(datPhongId);
+        if (sqlNgayNhan != null) {
+            LocalDate ngayNhan = sqlNgayNhan.toLocalDate();
+            LocalDate homNay = LocalDate.now();
+
+            long daysBetween = ChronoUnit.DAYS.between(homNay, ngayNhan);
+
+            return daysBetween > 7;
+        }
+        return false; // Nếu không có ngày nhận hoặc lỗi
+    }
 
     public void huyDatPhong(int dat_phong_id) {
         PreparedStatement stmtUpdateDatPhong = null;
