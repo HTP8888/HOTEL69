@@ -65,7 +65,7 @@ public class PhongController {
     }
     //cập nhật trạng thái phòng về Trống
     public void setPhong(List<Phong> dsPhongChon){
-        String sql = "UPDATE phong SET trang_thai = 'Trống' WHERE id = ?";
+        String sql = "UPDATE phong SET trang_thai = 'Trống' WHERE id = ? && trang_thai='Đang được đặt'";
         try{
             PreparedStatement stmt = conn.prepareStatement(sql);
             for (Phong phong : dsPhongChon) {
@@ -132,7 +132,13 @@ public class PhongController {
                 chiTietStmt.addBatch();
             }
             chiTietStmt.executeBatch();
-    
+            //3. cập nhật trạng thái phòng từ đang được đặt thành đã đặt
+            String capNhatTrangThai = "UPDATE phong SET trang_thai = 'Đã đặt' WHERE id = ?";
+            PreparedStatement ps2 = conn.prepareStatement(capNhatTrangThai);
+            for(Phong phong:dsPhongChon){
+                ps2.setInt(1,phong.getId());
+                ps2.executeUpdate();
+            }
             conn.commit(); // Hoàn tất transaction
             System.out.println("Đặt phòng thành công!");
     
