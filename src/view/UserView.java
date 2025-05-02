@@ -181,8 +181,15 @@ public class UserView {
             int chon = scanner.nextInt();
             scanner.nextLine();
             if(chon != 0) {
-                bookingController.huyDatPhong(chon);
-                dsPhongChon.clear();
+                if(bookingController.kiemTraCach1Tuan(chon)) {
+                    bookingController.huyDatPhong(chon);
+                    dsPhongChon.clear();
+                }
+                else{
+                    System.out.println("Bạn đã hết thời hạn hủy phòng");
+                    System.out.print("Nhấn enter để quay lại:");
+                    scanner.nextLine();
+                }
             }
             else{
                 return;
