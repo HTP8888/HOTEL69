@@ -16,7 +16,7 @@ public class AuthController {
         this.conn = Database.getConnection();
     }
 
-    public boolean dangKy(String hoTen, String email, String matKhau) {
+    public boolean dangKy(String hoTen, String email, String matKhau, String sdt, String diaChi) {
         try {
             // Kiểm tra email đã tồn tại chưa
             if (emailTonTai(email)) {
@@ -25,11 +25,13 @@ public class AuthController {
             }
 
             // Thêm người dùng mới với vai trò mặc định là khách hàng
-            String sql = "INSERT INTO nguoi_dung (ho_ten, email, mat_khau, vai_tro) VALUES (?, ?, ?, 'Khách hàng')";
+            String sql = "INSERT INTO nguoi_dung (ho_ten, email, mat_khau, vai_tro, sdt, dia_chi) VALUES (?, ?, ?, 'Khách hàng', ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, hoTen);
             stmt.setString(2, email);
             stmt.setString(3, matKhau);
+            stmt.setString(4, sdt);
+            stmt.setString(5, diaChi);
 
             int result = stmt.executeUpdate();
             return result > 0;

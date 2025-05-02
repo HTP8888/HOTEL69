@@ -63,6 +63,21 @@ public class PhongController {
         }
         return null;
     }
+    //cập nhật trạng thái phòng về Trống
+    public void setPhong(List<Phong> dsPhongChon){
+        String sql = "UPDATE phong SET trang_thai = 'Trống' WHERE id = ? && trang_thai='Đang được đặt'";
+        try{
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            for (Phong phong : dsPhongChon) {
+                stmt.setInt(1, phong.getId());
+                stmt.executeUpdate();
+            }
+            System.out.println("Đã cập nhật trạng thái phòng về Trống.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi khi cập nhật trạng thái phòng.");
+        }
+    }
     // Phương thức đặt phòng
     public boolean datPhong(int phong_id) {
         Phong p = getPhongById(phong_id);
@@ -117,7 +132,13 @@ public class PhongController {
                 chiTietStmt.addBatch();
             }
             chiTietStmt.executeBatch();
-    
+            //3. cập nhật trạng thái phòng từ đang được đặt thành đã đặt
+            String capNhatTrangThai = "UPDATE phong SET trang_thai = 'Đã đặt' WHERE id = ?";
+            PreparedStatement ps2 = conn.prepareStatement(capNhatTrangThai);
+            for(Phong phong:dsPhongChon){
+                ps2.setInt(1,phong.getId());
+                ps2.executeUpdate();
+            }
             conn.commit(); // Hoàn tất transaction
             System.out.println("Đặt phòng thành công!");
     
@@ -133,7 +154,7 @@ public class PhongController {
                 if (datPhongStmt != null) datPhongStmt.close();
                 if (chiTietStmt != null) chiTietStmt.close();
                 if (conn != null) conn.setAutoCommit(true);
-                if (conn != null) conn.close();
+                //if (conn != null) conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
