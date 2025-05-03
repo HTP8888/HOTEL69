@@ -197,7 +197,7 @@ public class UserView {
         }
     }
 private void xemPhongDaDat(NguoiDung nguoiDung) {
-        donDatPhongMap =  bookingController.layDanhSachDonDatPhong(nguoiDung.getId());
+        Map<Interger,DatPhong>donDatPhongMap =  bookingController.layDanhSachDonDatPhong(nguoiDung.getId());
         if (donDatPhongMap.isEmpty()) {
             System.out.println("Bạn chưa có đơn đặt phòng nào.");
         } else {
