@@ -1,0 +1,114 @@
+CREATE DATABASE IF NOT EXISTS quanly_datphong USE quanly_datphong;
+
+CREATE TABLE nguoi_dung (
+  id INT NOT NULL AUTO_INCREMENT,
+  ho_ten VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  mat_khau VARCHAR(100),
+  vai_tro ENUM('Khách hàng', 'admin') NOT NULL DEFAULT 'Khách hàng',
+  sdt VARCHAR(20),
+  dia_chi TEXT,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE dat_phong (
+  id INT NOT NULL AUTO_INCREMENT,
+  nguoi_dung_id INT,
+  ngay_dat DATE,
+  ngay_nhan DATE,
+  ngay_tra DATE,
+  trang_thai ENUM('Đã đặt', 'Đã hủy', 'Đã thanh toán', 'Đã hoàn thành') DEFAULT 'Đã đặt',
+  PRIMARY KEY (id),
+  FOREIGN KEY (nguoi_dung_id) REFERENCES nguoi_dung(id)
+);
+
+CREATE TABLE phong (
+  id INT NOT NULL AUTO_INCREMENT,
+  ten_phong VARCHAR(100),
+  loai_phong VARCHAR(50),
+  gia DECIMAL(10,2),
+  mo_ta TEXT,
+  tien_nghi TEXT,
+  trang_thai ENUM('Trống','Đang được đặt','Đã đặt','Bảo trì') NOT NULL DEFAULT 'Trống',
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE chi_tiet_dat_phong (
+  id INT NOT NULL AUTO_INCREMENT,
+  dat_phong_id INT,
+  phong_id INT,
+  gia_phong DECIMAL(10,2),
+  PRIMARY KEY (id),
+  FOREIGN KEY (dat_phong_id) REFERENCES dat_phong(id),
+  FOREIGN KEY (phong_id) REFERENCES phong(id)
+);
+
+CREATE TABLE thanh_toan (
+  id INT NOT NULL AUTO_INCREMENT,
+  dat_phong_id INT,
+  phuong_thuc ENUM('the','chuyen_khoan','tien_mat') DEFAULT 'tien_mat',
+  so_tien DECIMAL(10,2),
+  ngay_thanh_toan DATE,
+  PRIMARY KEY (id),
+  FOREIGN KEY (dat_phong_id) REFERENCES dat_phong(id)
+);
+
+CREATE TABLE danh_gia (
+  id INT NOT NULL AUTO_INCREMENT,
+  nguoi_dung_id INT,
+  phong_id INT,
+  diem_danh_gia INT,
+  noi_dung TEXT,
+  ngay_danh_gia DATE,
+  dat_phong_id INT,
+  PRIMARY KEY (id),
+  FOREIGN KEY (nguoi_dung_id) REFERENCES nguoi_dung(id),
+  FOREIGN KEY (phong_id) REFERENCES phong(id),
+  FOREIGN KEY (dat_phong_id) REFERENCES dat_phong(id) ON DELETE CASCADE,
+  CHECK (diem_danh_gia BETWEEN 1 AND 5)
+);
+
+CREATE TABLE khuyen_mai (
+  id INT NOT NULL AUTO_INCREMENT,
+  ma VARCHAR(50) NOT NULL UNIQUE,
+  ten_khuyen_mai VARCHAR(100),
+  mo_ta TEXT,
+  phan_tram_giam INT,
+  ngay_bat_dau DATE,
+  ngay_ket_thuc DATE,
+  PRIMARY KEY (id),
+  CHECK (phan_tram_giam BETWEEN 0 AND 100)
+);
+
+CREATE TABLE khuyen_mai_su_dung (
+  id INT NOT NULL AUTO_INCREMENT,
+  ma_khuyen_mai VARCHAR(50) NOT NULL,
+  nguoi_dung_id INT NOT NULL,
+  ngay_su_dung DATE NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (ma_khuyen_mai) REFERENCES khuyen_mai(ma),
+  FOREIGN KEY (nguoi_dung_id) REFERENCES nguoi_dung(id)
+);
+
+DELIMITER //
+
+CREATE EVENT cap_nhat_don_va_phong
+ON SCHEDULE EVERY 1 MINUTE
+DO
+BEGIN
+    -- 1. Cập nhật đơn hoàn thành
+    UPDATE dat_phong
+    SET trang_thai = 'Đã hoàn thành'
+    WHERE trang_thai != 'Đã thanh toán' AND ngay_tra < CURDATE();
+
+    -- 2. Cập nhật trạng thái phòng về 'Trống'
+    UPDATE phong
+    SET trang_thai = 'Trống'
+    WHERE id IN (
+        SELECT cdp.phong_id
+        FROM chi_tiet_dat_phong cdp
+        JOIN dat_phong dp ON dp.id = cdp.dat_phong_id
+        WHERE dp.trang_thai = 'Đã hoàn thành'
+    );
+END;
+//
