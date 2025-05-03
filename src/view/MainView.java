@@ -1,6 +1,9 @@
 package view;
 
 import controller.*;
+
+//import java.sql.Date;
+//import java.sql.Connection;
 import java.util.*;
 import model.*;
 
@@ -9,7 +12,10 @@ public class MainView {
     AuthController auth = new AuthController();
     PhongController phongCtrl = new PhongController();
     NguoiDung nguoiDung = null;
-
+    KhuyenMaiController KMC = new KhuyenMaiController();
+    DanhGiaController DGC = new DanhGiaController();
+    List<Phong> dsPhongChon;
+    DatPhongController bookingController = new DatPhongController();
     public void menu() {
         while (true) {
             System.out.println("\n1. Đăng ký\n2. Đăng nhập\n0. Thoát");
@@ -75,22 +81,23 @@ public class MainView {
         }
     }
 
+
     void dangNhap() {
         System.out.print("Email: ");
         String email = scanner.nextLine();
         System.out.print("Mật khẩu: ");
         String matKhau = scanner.nextLine();
         nguoiDung = auth.dangNhap(email, matKhau);
+
         if (nguoiDung != null) {
             System.out.println("Xin chào, " + nguoiDung.getHoTen());
             if (nguoiDung.getVaiTro().equals("admin")) {
-                AdminView adminView = new AdminView(scanner, auth, phongCtrl, nguoiDung);
+                AdminView adminView = new AdminView(scanner, auth, phongCtrl, nguoiDung, bookingController, KMC, DGC);
                 adminView.menuAdmin();
             } else {
-                UserView userView = new UserView(scanner, auth, phongCtrl, nguoiDung);
+                UserView userView = new UserView(scanner, auth, phongCtrl, nguoiDung, bookingController, KMC, DGC);
                 userView.menuKhachHang();
             }
-            nguoiDung = null; // Đặt lại người dùng sau khi đăng xuất
         } else {
             System.out.println("Sai tài khoản hoặc mật khẩu.");
         }
