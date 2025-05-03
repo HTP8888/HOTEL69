@@ -20,6 +20,7 @@ public class AdminView {
 
     void menuAdmin() {
         while (true) {
+            phongCtrl.capNhatTrangThaiPhongTuDong();
             System.out.println("\n--- MENU ADMIN ---");
             System.out.println("1. Tìm và xem chi tiết phòng");
             System.out.println("2. Quản lý người dùng");
