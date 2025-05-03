@@ -24,6 +24,7 @@ public class UserView {
 
     void menuKhachHang() {
         while (true) {
+            phongCtrl.capNhatTrangThaiPhongTuDong();
             System.out.println("\n--- MENU KHÁCH HÀNG ---");
             System.out.println("1. Tìm và xem chi tiết phòng");
             System.out.println("2. Cập nhật thông tin cá nhân");
