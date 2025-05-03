@@ -17,7 +17,40 @@ public class PhongController {
     public PhongController() {
         this.conn = Database.getConnection();
     
-    } 
+    }
+    public void capNhatTrangThaiPhongTuDong() {
+        String sql = """
+        SELECT p.id, MAX(dp.ngay_tra) AS ngay_tra
+        FROM phong p
+        JOIN chi_tiet_dat_phong ct ON p.id = ct.phong_id
+        JOIN dat_phong dp ON ct.dat_phong_id = dp.id
+        WHERE p.trang_thai = 'Đã đặt'
+        GROUP BY p.id
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+            LocalDate homNay = LocalDate.now();
+            while (rs.next()) {
+                int phongId = rs.getInt("id");
+                Date ngayKetThucSQL = rs.getDate("ngay_tra");
+                if (ngayKetThucSQL != null) {
+                    LocalDate ngayKetThuc = ngayKetThucSQL.toLocalDate();
+                    if (homNay.isAfter(ngayKetThuc)) {
+                        // Cập nhật lại trạng thái phòng về Trống
+                        String updateSql = "UPDATE phong SET trang_thai = 'Trống' WHERE id = ?";
+                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                            updateStmt.setInt(1, phongId);
+                            updateStmt.executeUpdate();
+                        }
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi cập nhật trạng thái phòng tự động: " + e.getMessage());
+        }
+    }
+    
     public List<Phong> layDanhSachPhong() {
         List<Phong> danhSachPhong = new ArrayList<>();
         String sql = "SELECT * FROM phong"; 
@@ -78,7 +111,7 @@ public class PhongController {
             System.out.println("Lỗi khi cập nhật trạng thái phòng.");
         }
     }
-    // Phương thức đặt phòng
+    // Phương thức chọn phòng
     public boolean datPhong(int phong_id) {
         Phong p = getPhongById(phong_id);
         if (p != null && p.getTrangThai().equalsIgnoreCase("Trống")) {
