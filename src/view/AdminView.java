@@ -26,7 +26,8 @@ public class AdminView {
             System.out.println("4. Đổi mật khẩu");
             System.out.println("0. Đăng xuất");
             System.out.print("Chọn: ");
-            int chon = scanner.nextInt(); scanner.nextLine();
+            int chon = scanner.nextInt();
+            scanner.nextLine();
             if (chon == 1) {
                 timVaXemChiTietPhong();
             } else if (chon == 2) {
@@ -118,7 +119,8 @@ public class AdminView {
             System.out.println("1. Danh sách người dùng");
             System.out.println("0. Quay lại");
             System.out.print("Chọn: ");
-            int chon = scanner.nextInt(); scanner.nextLine();
+            int chon = scanner.nextInt();
+            scanner.nextLine();
             if (chon == 1) {
                 xemDanhSachNguoiDung();
             } else if (chon == 0) {
@@ -193,24 +195,28 @@ public class AdminView {
         System.out.print("Nhập mật khẩu hiện tại: ");
         String matKhauCu = scanner.nextLine();
 
-        System.out.print("Nhập mật khẩu mới: ");
-        String matKhauMoi = scanner.nextLine();
+        String matKhauMoi, xacNhan;
+        while (true) {
+            System.out.print("Nhập mật khẩu mới: ");
+            matKhauMoi = scanner.nextLine();
+            System.out.print("Xác nhận mật khẩu mới: ");
+            xacNhan = scanner.nextLine();
 
-        System.out.print("Xác nhận mật khẩu mới: ");
-        String xacNhan = scanner.nextLine();
-
-        if (!matKhauMoi.equals(xacNhan)) {
-            System.out.println("Mật khẩu mới và xác nhận không khớp!");
-        } else if (matKhauMoi.length() < 6) {
-            System.out.println("Mật khẩu mới phải có ít nhất 6 ký tự!");
-        } else {
-            boolean success = auth.doiMatKhau(nguoiDung.getId(), matKhauCu, matKhauMoi);
-            if (success) {
-                System.out.println("Đổi mật khẩu thành công!");
-                nguoiDung.setMatKhau(matKhauMoi);
+            if (!matKhauMoi.equals(xacNhan)) {
+                System.out.println("Mật khẩu mới và xác nhận không khớp. Vui lòng nhập lại.\n");
+            } else if (!matKhauMoi.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{6,}$")) {
+                System.out.println("Mật khẩu phải có ít nhất 6 ký tự, gồm chữ hoa, chữ thường và số. Vui lòng nhập lại.\n");
             } else {
-                System.out.println("Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.");
+                break;
             }
+        }
+
+        boolean success = auth.doiMatKhau(nguoiDung.getId(), matKhauCu, matKhauMoi);
+        if (success) {
+            System.out.println("Đổi mật khẩu thành công!");
+            nguoiDung.setMatKhau(matKhauMoi);
+        } else {
+            System.out.println("Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.");
         }
 
         System.out.println("\nNhấn 'enter' để quay lại menu.");
