@@ -308,17 +308,25 @@ public class   DatPhongController {
     }
 
 
-    public void tinhTongDoanhThuTheoNam(int nam) {
+ public void tinhTongDoanhThuTheoNam(int nam) {
         try {
-            String sql = "SELECT SUM(so_tien) AS tong_doanh_thu FROM thanh_toan " +
-                    "WHERE YEAR(ngay_thanh_toan) = ?";
+            String sql = "SELECT SUM(tt.so_tien) AS tong_doanh_thu " +
+                    "FROM thanh_toan tt " +
+                    "JOIN dat_phong dp ON tt.dat_phong_id = dp.id " +
+                    "WHERE YEAR(tt.ngay_thanh_toan) = ? " +
+                    "AND dp.trang_thai = 'Đã hoàn thành'";
+
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, nam);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 double tongDoanhThu = rs.getDouble("tong_doanh_thu");
-                System.out.println(">> Tổng doanh thu năm " + nam + " là: " + tongDoanhThu + " VNĐ");
+                if (rs.wasNull()) {
+                    System.out.println(">> Không có đơn hoàn thành nào trong năm " + nam);
+                } else {
+                    System.out.printf(">> Tổng doanh thu năm %d (từ các đơn hoàn thành): %.0f VNĐ%n", nam, tongDoanhThu);
+                }
             } else {
                 System.out.println("Không có dữ liệu doanh thu cho năm " + nam);
             }
