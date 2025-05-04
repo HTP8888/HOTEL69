@@ -99,7 +99,7 @@ BEGIN
     -- 1. Cập nhật đơn hoàn thành
     UPDATE dat_phong
     SET trang_thai = 'Đã hoàn thành'
-    WHERE trang_thai != 'Đã thanh toán' AND ngay_tra < CURDATE();
+    WHERE trang_thai = 'Đã thanh toán' AND ngay_tra <= CURDATE();
 
     -- 2. Cập nhật trạng thái phòng về 'Trống'
     UPDATE phong
