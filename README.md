@@ -13,7 +13,7 @@ Dự án này là công sức của 4 thành viên, mỗi người "quản lý" 
 * 👨‍💻 **[tôi]**: Branch của **HTP8888**
 * 👨‍💻 **[vanh]**: Branch của **Vanh**
 * 👨‍💻 **[huy]**: Branch của **Huy**
-* 👨‍💻 **[han]**: Branch của **Han**
+* 👨‍💻 **[han]**: Branch của **Hân**
 
 ---
 
